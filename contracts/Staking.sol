@@ -124,6 +124,11 @@ contract Staking is IStaking, Ownable {
         }
     }
 
+    function jail(address signer, uint256 _jailedUntil, bool _tombstoned) external onlyOwner{
+        IValidator(ownerOf[signer]).jail(_jailedUntil, _tombstoned);
+        emit Jailed(ownerOf[signer], _jailedUntil, _tombstoned);
+    }
+
     function _allocateTokens(
         uint256 sumPreviousPrecommitPower,
         uint256 totalPreviousVotingPower,

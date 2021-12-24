@@ -408,34 +408,34 @@ contract Validator is IValidator, Ownable {
         uint256 _votingPower,
         bool _signed
     ) external onlyOwner{
-        // counts blocks the validator should have signed
-        uint index = signingInfo.indexOffset % IParams(params).getSignedBlockWindow();
-        signingInfo.indexOffset++;
-        bool previous = missedBlock[index];
-        bool missed = !_signed;
-        if (!previous && missed) { // value has changed from not missed to missed, increment counter
-            signingInfo.missedBlockCounter++;
-            missedBlock[index] = true;
-        }
-        if (previous && !missed) { // value has changed from missed to not missed, decrement counter
-            signingInfo.missedBlockCounter--;
-            missedBlock[index] = false;
-        }
+        // // counts blocks the validator should have signed
+        // uint index = signingInfo.indexOffset % IParams(params).getSignedBlockWindow();
+        // signingInfo.indexOffset++;
+        // bool previous = missedBlock[index];
+        // bool missed = !_signed;
+        // if (!previous && missed) { // value has changed from not missed to missed, increment counter
+        //     signingInfo.missedBlockCounter++;
+        //     missedBlock[index] = true;
+        // }
+        // if (previous && !missed) { // value has changed from missed to not missed, decrement counter
+        //     signingInfo.missedBlockCounter--;
+        //     missedBlock[index] = false;
+        // }
 
-        uint256 minHeight = signingInfo.startHeight.add(IParams(params).getSignedBlockWindow());
-        uint minSignedPerWindow = IParams(params).getSignedBlockWindow().mulTrun(IParams(params).getMinSignedPerWindow());
-        uint maxMissed = IParams(params).getSignedBlockWindow().sub(minSignedPerWindow);
-        // if past the minimum height and the validator has missed too many blocks, punish them
-        if (block.number > minHeight && signingInfo.missedBlockCounter > maxMissed) {
-            if (!inforValidator.jailed) {
-                _slash(block.number.sub(2), _votingPower, IParams(params).getSlashFractionDowntime());
-                _jail(block.timestamp.add(IParams(params).getDowntimeJailDuration()), false);
-                signingInfo.missedBlockCounter = 0;
-                _resetMissedBlock(IParams(params).getSignedBlockWindow());
-                signingInfo.indexOffset = 0;
-                emit Slashed(_votingPower, 1);
-            }
-        }
+        // uint256 minHeight = signingInfo.startHeight.add(IParams(params).getSignedBlockWindow());
+        // uint minSignedPerWindow = IParams(params).getSignedBlockWindow().mulTrun(IParams(params).getMinSignedPerWindow());
+        // uint maxMissed = IParams(params).getSignedBlockWindow().sub(minSignedPerWindow);
+        // // if past the minimum height and the validator has missed too many blocks, punish them
+        // if (block.number > minHeight && signingInfo.missedBlockCounter > maxMissed) {
+        //     if (!inforValidator.jailed) {
+        //         // _slash(block.number.sub(2), _votingPower, IParams(params).getSlashFractionDowntime());
+        //         _jail(block.timestamp.add(IParams(params).getDowntimeJailDuration()), false);
+        //         signingInfo.missedBlockCounter = 0;
+        //         _resetMissedBlock(IParams(params).getSignedBlockWindow());
+        //         signingInfo.indexOffset = 0;
+        //         emit Slashed(_votingPower, 1);
+        //     }
+        // }
     }
 
     function _resetMissedBlock(uint256 _missedIndex) private {
@@ -682,6 +682,10 @@ contract Validator is IValidator, Ownable {
         signingInfo.tombstoned = _tombstoned;
         _staking.removeFromSets();
         _stop();
+    }
+
+    function jail(uint256 _jailedUntil, bool _tombstoned) public onlyOwner {
+        return _jail(_jailedUntil, _tombstoned);
     }
 
     function _stopIfNeeded() private {
