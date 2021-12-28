@@ -635,45 +635,45 @@ contract Validator is IValidator, Ownable {
     }
     
     function _slash(uint256 _infrationHeight, uint256 _power, uint256 _slashFactor) private {
-        require(_infrationHeight <= block.number, "cannot slash infrations in the future");
+        // require(_infrationHeight <= block.number, "cannot slash infrations in the future");
         
-        uint256 slashAmount = _power.mul(powerReduction).mulTrun(_slashFactor);
-        if (_infrationHeight < block.number) {
-            uint256 totalDel = delegations.length();
-            for (uint256 i = 0; i < totalDel; i++) {
-                address delAddr = delegations.at(i);
-                UBDEntry[] storage entries = ubdEntries[delAddr];
-                for (uint256 j = 0; j < entries.length; j++) {
-                    UBDEntry storage entry = entries[j];
-                    if (entry.amount == 0) continue;
-                    // if unbonding started before this height, stake did not contribute to infraction;
-                    if (entry.blockHeight < _infrationHeight) continue;
-                    // solhint-disable-next-line not-rely-on-time
-                    if (entry.completionTime < block.timestamp) {
-                        // unbonding delegation no longer eligible for slashing, skip it
-                        continue;
-                    }
-                    uint256 amountSlashed = entry.amount.mulTrun(_slashFactor);
-                    entry.amount = entry.amount.sub(amountSlashed);
-                    slashAmount = slashAmount.sub(amountSlashed);
-                }
-            }
-        }
+        // uint256 slashAmount = _power.mul(powerReduction).mulTrun(_slashFactor);
+        // if (_infrationHeight < block.number) {
+        //     uint256 totalDel = delegations.length();
+        //     for (uint256 i = 0; i < totalDel; i++) {
+        //         address delAddr = delegations.at(i);
+        //         UBDEntry[] storage entries = ubdEntries[delAddr];
+        //         for (uint256 j = 0; j < entries.length; j++) {
+        //             UBDEntry storage entry = entries[j];
+        //             if (entry.amount == 0) continue;
+        //             // if unbonding started before this height, stake did not contribute to infraction;
+        //             if (entry.blockHeight < _infrationHeight) continue;
+        //             // solhint-disable-next-line not-rely-on-time
+        //             if (entry.completionTime < block.timestamp) {
+        //                 // unbonding delegation no longer eligible for slashing, skip it
+        //                 continue;
+        //             }
+        //             uint256 amountSlashed = entry.amount.mulTrun(_slashFactor);
+        //             entry.amount = entry.amount.sub(amountSlashed);
+        //             slashAmount = slashAmount.sub(amountSlashed);
+        //         }
+        //     }
+        // }
 
-        uint256 tokensToBurn = slashAmount;
-        if (tokensToBurn > inforValidator.tokens) {
-            tokensToBurn = inforValidator.tokens;
-        }
+        // uint256 tokensToBurn = slashAmount;
+        // if (tokensToBurn > inforValidator.tokens) {
+        //     tokensToBurn = inforValidator.tokens;
+        // }
 
-        if (inforValidator.tokens > 0) {
-            uint256 effectiveFraction = tokensToBurn.divTrun(inforValidator.tokens);
-            _updateValidatorSlashFraction(effectiveFraction);
-        }
+        // if (inforValidator.tokens > 0) {
+        //     uint256 effectiveFraction = tokensToBurn.divTrun(inforValidator.tokens);
+        //     _updateValidatorSlashFraction(effectiveFraction);
+        // }
 
-        inforValidator.tokens = inforValidator.tokens.sub(tokensToBurn);
-        address(uint160(address(treasury))).transfer(tokensToBurn);
-        _staking.burn(tokensToBurn, 0);
-        emit Transfer(address(this), treasury, tokensToBurn);
+        // inforValidator.tokens = inforValidator.tokens.sub(tokensToBurn);
+        // address(uint160(address(treasury))).transfer(tokensToBurn);
+        // _staking.burn(tokensToBurn, 0);
+        // emit Transfer(address(this), treasury, tokensToBurn);
     }
     
     function _jail(uint256 _jailedUntil, bool _tombstoned) private {
