@@ -30,6 +30,10 @@ contract Staking is IStaking, Ownable {
     address public params;
     address public treasury;
 
+    // Staking v3 hardfork
+    mapping(address => address) public v1ToV3Owner; // Migrate v1 owners to v3
+    mapping(address => address) public v3ValOf; // V3 validator of owner
+
     // Functions with this modifier can only be executed by the validator
     modifier onlyValidator() {
         require(valOf[msg.sender] != address(0x0), "Ownable: caller is not the validator");
@@ -295,6 +299,10 @@ contract Staking is IStaking, Ownable {
             valAddrs[i] = allVals[i];
         }
         return valAddrs;
+    }
+    
+    function initStakingV3() external {
+        
     }
 
     function deposit() external payable {
