@@ -30,13 +30,13 @@ contract Staking is IStaking, Ownable {
     address public params;
     address public treasury;
 
-    // Staking v3 hardfork
-    mapping(address => address) public v1ToV3Owner; // Migrate v1 owners to v3
-    mapping(address => address) public v3ValOf; // V3 validator of owner
-
+    // Hardfork v3
+    mapping(address => address) public v1ToV3Owner;
+    mapping(address => address) public v3ValOf; // Validator of the v3 owner
+    
     // Functions with this modifier can only be executed by the validator
     modifier onlyValidator() {
-        require(valOf[msg.sender] != address(0x0), "Ownable: caller is not the validator");
+        require(valOf[msg.sender] != address(0x0) || v3ValOf[msg.sender] != address(0x0), "Ownable: caller is not the validator");
         _;
     }
 
@@ -89,6 +89,7 @@ contract Staking is IStaking, Ownable {
         allVals.push(val);
         ownerOf[msg.sender] = val;
         valOf[val] = msg.sender;
+        v3ValOf[val] = msg.sender;
         IValidator(val).setParams(params);
         IValidator(val).setTreasury(treasury);
         IValidator(val).selfDelegate(msg.sender, msg.value);
@@ -160,7 +161,7 @@ contract Staking is IStaking, Ownable {
         IValidator(ownerOf[signerAddr]).allocateToken(_rewards);
     }
 
-    function _validateSignature( address signerAddr, uint256 votingPower, bool signed) private {
+    function _validateSignature(address signerAddr, uint256 votingPower, bool signed) private {
         IValidator val = IValidator(ownerOf[signerAddr]);
         val.validateSignature(votingPower, signed);
     }
@@ -262,7 +263,7 @@ contract Staking is IStaking, Ownable {
 
     function _isProposer(address _valAddr) private view returns (bool) {
         for (uint i = 0; i < valSets.length; i++) {
-            if (valOf[valSets[i]] == _valAddr) {
+            if (valOf[valSets[i]] == _valAddr || v3ValOf[valSets[i]] == _valAddr) {
                 return true;
             }
         }
@@ -285,7 +286,11 @@ contract Staking is IStaking, Ownable {
         uint256[] memory votingPowers = new uint256[](total);
         for (uint i = 0; i < total; i++) {
             address valAddr = valSets[i];
-            signerAddrs[i] = valOf[valAddr];
+            if (v3ValOf[valAddr] != address(0x0)) {
+                signerAddrs[i] = v3ValOf[valAddr];
+            } else {
+                signerAddrs[i] = valOf[valAddr];
+            }
             votingPowers[i] = balanceOf[valAddr].div(powerReduction);
         }
         return (signerAddrs, votingPowers);
@@ -300,9 +305,17 @@ contract Staking is IStaking, Ownable {
         }
         return valAddrs;
     }
-    
-    function initStakingV3() external {
-        
+
+    function version() external pure returns (string memory) {
+        return "v3";
+    }
+
+    function initv3Owners() external {
+        v1ToV3Owner[address(0xc1fe56E3F58D3244F606306611a5d10c8333f1f6)] = address(0x990d94FEF322B50C5014d88565851Cd5Cf0BC453);
+        v1ToV3Owner[address(0x7cefC13B6E2aedEeDFB7Cb6c32457240746BAEe5)] = address(0x2c7e460668FdA84A87fbE6599BEF2eca30972F06);
+
+        v3ValOf[ownerOf[address(0xc1fe56E3F58D3244F606306611a5d10c8333f1f6)]] = address(0x990d94FEF322B50C5014d88565851Cd5Cf0BC453);
+        v3ValOf[ownerOf[address(0x7cefC13B6E2aedEeDFB7Cb6c32457240746BAEe5)]] = address(0x2c7e460668FdA84A87fbE6599BEF2eca30972F06);
     }
 
     function deposit() external payable {
