@@ -282,16 +282,18 @@ contract Staking is IStaking, Ownable {
     // get current validator sets
     function getValidatorSets() external view returns (address[] memory, uint256[] memory) {
         uint256 total = valSets.length;
-        address[] memory signerAddrs = new address[](total);
-        uint256[] memory votingPowers = new uint256[](total);
+        address[] memory signerAddrs = new address[](total*2);
+        uint256[] memory votingPowers = new uint256[](total*2);
+        uint256 index = 0;
         for (uint i = 0; i < total; i++) {
             address valAddr = valSets[i];
             if (v3ValOf[valAddr] != address(0x0)) {
-                signerAddrs[i] = v3ValOf[valAddr];
-            } else {
-                signerAddrs[i] = valOf[valAddr];
+                signerAddrs[index] = v3ValOf[valAddr];
+                index++;
             }
-            votingPowers[i] = balanceOf[valAddr].div(powerReduction);
+            signerAddrs[index] = valOf[valAddr];
+            index++;
+            votingPowers[index++] = balanceOf[valAddr].div(powerReduction);
         }
         return (signerAddrs, votingPowers);
     }
