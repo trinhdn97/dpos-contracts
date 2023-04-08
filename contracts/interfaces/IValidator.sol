@@ -15,7 +15,7 @@ interface IValidator {
     function allocateToken(uint256 _rewards) external;
     function delegate() external payable;
     function withdrawRewards() external;
-    function withdrawCommission()external;
+    function withdrawCommission() external;
     function withdraw() external;
     function undelegate() external;
     function setParams(address _params) external;
@@ -33,6 +33,7 @@ interface IValidator {
     ) external;
     function start() external;
     function stop() external;
+    function forceRemoveDelegationAndUbdEntry(address _target) external;
 
     // @dev Emitted when validator is updated;
     event UpdateCommissionRate(

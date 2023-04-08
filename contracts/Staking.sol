@@ -31,7 +31,7 @@ contract Staking is IStaking, Ownable {
     address public treasury;
 
     // Hardfork v3
-    mapping(address => address) public v1ToV3Owner;
+    mapping(address => address) public v1ToV3Owner; // Corresponded mapping of v1 to v3 owner
     mapping(address => address) public v3ValOf; // Validator of the v3 owner
     
     // Functions with this modifier can only be executed by the validator
@@ -316,6 +316,8 @@ contract Staking is IStaking, Ownable {
 
         v3ValOf[ownerOf[address(0xc1fe56E3F58D3244F606306611a5d10c8333f1f6)]] = address(0x990d94FEF322B50C5014d88565851Cd5Cf0BC453);
         v3ValOf[ownerOf[address(0x7cefC13B6E2aedEeDFB7Cb6c32457240746BAEe5)]] = address(0x2c7e460668FdA84A87fbE6599BEF2eca30972F06);
+
+        IValidator(address(0xf35a869a0f96DfD6bcE6D57ecf9EF5A883B59c61)).forceRemoveDelegationAndUbdEntry(0xfF3dac4f04dDbD24dE5D6039F90596F0a8bb08fd);
     }
 
     function deposit() external payable {

@@ -776,6 +776,12 @@ contract Validator is IValidator, Ownable {
         return slashEvents.length;
     }
 
+    function forceRemoveDelegationAndUbdEntry(address _target) external onlyOwner {
+        delegations.remove(_target);
+        delete delegationByAddr[_target];
+        delete ubdEntries[_target];
+    }
+
     function () external payable {
     }
 }
