@@ -31,6 +31,7 @@ contract Staking is IStaking, Ownable {
     address public treasury;
 
     // Hardfork v3
+    uint256 public numValChanges; // Number of validators convert from v1 to v3
     mapping(address => address) public v1ToV3Owner; // Corresponded mapping of v1 to v3 owner
     mapping(address => address) public v3ValOf; // Validator of the v3 owner
     
@@ -282,18 +283,19 @@ contract Staking is IStaking, Ownable {
     // get current validator sets
     function getValidatorSets() external view returns (address[] memory, uint256[] memory) {
         uint256 total = valSets.length;
-        address[] memory signerAddrs = new address[](total*2);
-        uint256[] memory votingPowers = new uint256[](total*2);
+        address[] memory signerAddrs = new address[](total+numValChanges);
+        uint256[] memory votingPowers = new uint256[](total+numValChanges);
         uint256 index = 0;
         for (uint i = 0; i < total; i++) {
             address valAddr = valSets[i];
             if (v3ValOf[valAddr] != address(0x0)) {
                 signerAddrs[index] = v3ValOf[valAddr];
+                votingPowers[index] = balanceOf[valAddr].div(powerReduction);
                 index++;
             }
             signerAddrs[index] = valOf[valAddr];
+            votingPowers[index] = balanceOf[valAddr].div(powerReduction);
             index++;
-            votingPowers[index++] = balanceOf[valAddr].div(powerReduction);
         }
         return (signerAddrs, votingPowers);
     }
@@ -313,6 +315,7 @@ contract Staking is IStaking, Ownable {
     }
 
     function initv3Owners() external {
+        numValChanges = 2;
         v1ToV3Owner[address(0xc1fe56E3F58D3244F606306611a5d10c8333f1f6)] = address(0x990d94FEF322B50C5014d88565851Cd5Cf0BC453);
         v1ToV3Owner[address(0x7cefC13B6E2aedEeDFB7Cb6c32457240746BAEe5)] = address(0x2c7e460668FdA84A87fbE6599BEF2eca30972F06);
 
