@@ -31,8 +31,6 @@ contract Staking is IStaking, Ownable {
     address public treasury;
 
     // Hardfork v3
-    uint256 public numValChanges; // Number of validators convert from v1 to v3
-    mapping(address => address) public v1ToV3Owner; // Corresponded mapping of v1 to v3 owner
     mapping(address => address) public v3ValOf; // Validator of the v3 owner
     
     // Functions with this modifier can only be executed by the validator
@@ -283,19 +281,16 @@ contract Staking is IStaking, Ownable {
     // get current validator sets
     function getValidatorSets() external view returns (address[] memory, uint256[] memory) {
         uint256 total = valSets.length;
-        address[] memory signerAddrs = new address[](total+numValChanges);
-        uint256[] memory votingPowers = new uint256[](total+numValChanges);
-        uint256 index = 0;
+        address[] memory signerAddrs = new address[](total);
+        uint256[] memory votingPowers = new uint256[](total);
         for (uint i = 0; i < total; i++) {
             address valAddr = valSets[i];
             if (v3ValOf[valAddr] != address(0x0)) {
-                signerAddrs[index] = v3ValOf[valAddr];
-                votingPowers[index] = balanceOf[valAddr].div(powerReduction);
-                index++;
+                signerAddrs[i] = v3ValOf[valAddr];
+            } else {
+                signerAddrs[i] = valOf[valAddr];
             }
-            signerAddrs[index] = valOf[valAddr];
-            votingPowers[index] = balanceOf[valAddr].div(powerReduction);
-            index++;
+            votingPowers[i] = balanceOf[valAddr].div(powerReduction);
         }
         return (signerAddrs, votingPowers);
     }
@@ -315,14 +310,11 @@ contract Staking is IStaking, Ownable {
     }
 
     function initv3Owners() external {
-        numValChanges = 2;
-        v1ToV3Owner[address(0xc1fe56E3F58D3244F606306611a5d10c8333f1f6)] = address(0x990d94FEF322B50C5014d88565851Cd5Cf0BC453);
-        v1ToV3Owner[address(0x7cefC13B6E2aedEeDFB7Cb6c32457240746BAEe5)] = address(0x2c7e460668FdA84A87fbE6599BEF2eca30972F06);
-
         v3ValOf[ownerOf[address(0xc1fe56E3F58D3244F606306611a5d10c8333f1f6)]] = address(0x990d94FEF322B50C5014d88565851Cd5Cf0BC453);
         v3ValOf[ownerOf[address(0x7cefC13B6E2aedEeDFB7Cb6c32457240746BAEe5)]] = address(0x2c7e460668FdA84A87fbE6599BEF2eca30972F06);
+        v3ValOf[ownerOf[address(0xfF3dac4f04dDbD24dE5D6039F90596F0a8bb08fd)]] = address(0x37DaE0D5f7573F1748FD780E27FB3d0Ca618E2DB);
 
-        IValidator(address(0xf35a869a0f96DfD6bcE6D57ecf9EF5A883B59c61)).forceRemoveDelegationAndUbdEntry(0xfF3dac4f04dDbD24dE5D6039F90596F0a8bb08fd);
+        IValidator(address(0xf35a869a0f96DfD6bcE6D57ecf9EF5A883B59c61)).forceRemoveDelegationAndUbdEntry(address(0xfF3dac4f04dDbD24dE5D6039F90596F0a8bb08fd));
     }
 
     function deposit() external payable {
