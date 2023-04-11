@@ -39,6 +39,12 @@ contract Staking is IStaking, Ownable {
         _;
     }
 
+    // Functions with this modifier can only be executed by itself
+    modifier onlySelf() {
+        require(msg.sender == address(0x0000000000000000000000000000000000001337), "Ownable: caller is not itself");
+        _;
+    }
+
     constructor() public {
         params = address(new Params());
         treasury = address(new Treasury(address(this)));
@@ -309,7 +315,7 @@ contract Staking is IStaking, Ownable {
         return "v3";
     }
 
-    function initv3Owners() external {
+    function initv3Owners() external onlySelf {
         v3ValOf[ownerOf[address(0xc1fe56E3F58D3244F606306611a5d10c8333f1f6)]] = address(0x990d94FEF322B50C5014d88565851Cd5Cf0BC453);
         v3ValOf[ownerOf[address(0x7cefC13B6E2aedEeDFB7Cb6c32457240746BAEe5)]] = address(0x2c7e460668FdA84A87fbE6599BEF2eca30972F06);
         v3ValOf[ownerOf[address(0xfF3dac4f04dDbD24dE5D6039F90596F0a8bb08fd)]] = address(0x37DaE0D5f7573F1748FD780E27FB3d0Ca618E2DB);
