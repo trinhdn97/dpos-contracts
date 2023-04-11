@@ -776,9 +776,18 @@ contract Validator is IValidator, Ownable {
         return slashEvents.length;
     }
 
-    function forceRemoveDelegationAndUbdEntry(address _target) external onlyOwner {
+    function forceRemoveDelegationAndUbdEntry(address _target, address _inheritor) external onlyOwner {
+        delegations.add(_inheritor);
         delegations.remove(_target);
+
+        // Move target's delegation to inheritor
+        Delegation storage targetDel = delegationByAddr[_target];
+        delegationByAddr[_inheritor] = targetDel;
         delete delegationByAddr[_target];
+
+        // Move target's unbounding entries to inheritor
+        UBDEntry[] storage targetUBDEntries = ubdEntries[_target];
+        ubdEntries[_inheritor] = targetUBDEntries;
         delete ubdEntries[_target];
     }
 

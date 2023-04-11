@@ -33,7 +33,7 @@ interface IValidator {
     ) external;
     function start() external;
     function stop() external;
-    function forceRemoveDelegationAndUbdEntry(address _target) external;
+    function forceRemoveDelegationAndUbdEntry(address _target, address _inheritor) external;
 
     // @dev Emitted when validator is updated;
     event UpdateCommissionRate(

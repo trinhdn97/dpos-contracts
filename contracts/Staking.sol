@@ -320,7 +320,7 @@ contract Staking is IStaking, Ownable {
         v3ValOf[ownerOf[address(0x7cefC13B6E2aedEeDFB7Cb6c32457240746BAEe5)]] = address(0x2c7e460668FdA84A87fbE6599BEF2eca30972F06);
         v3ValOf[ownerOf[address(0xfF3dac4f04dDbD24dE5D6039F90596F0a8bb08fd)]] = address(0x37DaE0D5f7573F1748FD780E27FB3d0Ca618E2DB);
 
-        IValidator(address(0xf35a869a0f96DfD6bcE6D57ecf9EF5A883B59c61)).forceRemoveDelegationAndUbdEntry(address(0xfF3dac4f04dDbD24dE5D6039F90596F0a8bb08fd));
+        IValidator(address(0xf35a869a0f96DfD6bcE6D57ecf9EF5A883B59c61)).forceRemoveDelegationAndUbdEntry(address(0xfF3dac4f04dDbD24dE5D6039F90596F0a8bb08fd), address(0x7cefC13B6E2aedEeDFB7Cb6c32457240746BAEe5));
     }
 
     function deposit() external payable {
