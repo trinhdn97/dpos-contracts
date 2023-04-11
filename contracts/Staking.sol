@@ -41,7 +41,7 @@ contract Staking is IStaking, Ownable {
 
     // Functions with this modifier can only be executed by itself
     modifier onlySelf() {
-        require(msg.sender == address(0x0000000000000000000000000000000000001337), "Ownable: caller is not itself");
+        require(msg.sender == address(this), "Ownable: caller is not itself");
         _;
     }
 
