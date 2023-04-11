@@ -35,7 +35,7 @@ contract Staking is IStaking, Ownable {
     
     // Functions with this modifier can only be executed by the validator
     modifier onlyValidator() {
-        require(valOf[msg.sender] != address(0x0) || v3ValOf[msg.sender] != address(0x0), "Ownable: caller is not the validator");
+        require(v3ValOf[msg.sender] != address(0x0), "Ownable: caller is not the validator");
         _;
     }
 
